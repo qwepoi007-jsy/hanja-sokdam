@@ -13,5 +13,5 @@ window.FIREBASE_CONFIG = {
   appId: "1:1083486335515:web:bbc5a488e7b7295b5dfebe"
 };
 
-// 교사 대시보드에 로그인할 Google 계정 (database.rules.json의 주소와 같아야 함)
-window.TEACHER_EMAIL = "qwepoi007@gmail.com";
+// 교사 대시보드에 로그인할 Google 계정 목록 (database.rules.json의 주소와 같아야 함)
+window.TEACHER_EMAILS = ["qwepoi007@gmail.com", "bortaguni@gmail.com", "bortaguni@naver.com"];

@@ -21,11 +21,11 @@
    - 위치: **싱가포르(asia-southeast1)** 권장
    - 보안 규칙: **잠금 모드**로 시작
    - 만든 뒤 화면 위쪽의 주소(`https://….firebasedatabase.app`)가 `firebase-config.js`의 `databaseURL`과 같은지 확인하세요. 비어 있으면 직접 넣습니다.
-4. **보안 규칙 붙여 넣기** — Realtime Database → *규칙* 탭 → `database.rules.json` 내용 전체를 붙여 넣고 교사 계정(qwepoi007@gmail.com)이 들어간 규칙을 *게시* (완료됨).
+4. **보안 규칙 붙여 넣기** — Realtime Database → *규칙* 탭 → `database.rules.json` 내용 전체를 붙여 넣고 교사 계정(qwepoi007@gmail.com, bortaguni@gmail.com, bortaguni@naver.com)이 들어간 규칙을 *게시* (완료됨). 교사를 추가하려면 규칙의 이메일 목록과 `firebase-config.js`의 `TEACHER_EMAILS`를 함께 고칩니다.
 5. **로그인 방식 켜기** — *빌드 → Authentication → 시작하기 → 로그인 방법*
    - **익명**: 사용 설정 (학생용 — 학생은 계정이 필요 없습니다)
    - **Google**: 사용 설정 (교사용)
-6. **교사 이메일 등록** — `firebase-config.js` 맨 아래 `TEACHER_EMAIL`도 같은 주소로 바꿉니다.
+6. **교사 이메일 등록** — `firebase-config.js` 맨 아래 `TEACHER_EMAILS` 목록도 같은 주소로 맞춥니다.
 7. **승인된 도메인 추가** — Authentication → *설정 → 승인된 도메인* → `qksrhrrltnf-ctrl.github.io` 추가 (GitHub Pages 주소의 도메인 부분).
 
 ## 2. GitHub Pages에 올리기

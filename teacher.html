@@ -183,7 +183,8 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
   $('#outBtn').onclick = () => A.signOut(auth);
 
   A.onAuthStateChanged(auth, u => {
-    const ok = u && !u.isAnonymous && u.email && (!window.TEACHER_EMAIL || u.email.toLowerCase() === window.TEACHER_EMAIL.toLowerCase());
+    const TE = (window.TEACHER_EMAILS || (window.TEACHER_EMAIL ? [window.TEACHER_EMAIL] : [])).map(e => e.toLowerCase());
+    const ok = u && !u.isAnonymous && u.email && (!TE.length || TE.includes(u.email.toLowerCase()));
     $('#who').textContent = u && !u.isAnonymous ? u.email : '';
     $('#outBtn').classList.toggle('hide', !(u && !u.isAnonymous));
     if (u && !u.isAnonymous && !ok) $('#gateErr').textContent = `이 계정(${u.email})은 교사 계정으로 등록되어 있지 않습니다.`;
