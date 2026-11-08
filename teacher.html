@@ -84,6 +84,12 @@ td.num{font-variant-numeric:tabular-nums}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
 .err{color:var(--seal);font-weight:700}
+.ovl{position:fixed;inset:0;z-index:100;background:rgba(37,33,28,.5);display:none;align-items:center;justify-content:center;padding:18px}
+.ovl.on{display:flex}
+.mdl{background:var(--card);border-radius:18px;padding:22px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mdl p{line-height:1.6;margin:0 0 12px}
+.mdl input{width:100%;font-size:16px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);margin-bottom:12px}
+.mdl .row{justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -146,6 +152,7 @@ td.num{font-variant-numeric:tabular-nums}
 </main>
 
 <aside class="drawer" id="drawer"></aside>
+<div class="ovl" id="ask"><div class="mdl" id="askBox"></div></div>
 
 <script src="firebase-config.js"></script>
 <script type="module">
@@ -193,6 +200,19 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
     if (ok) start();
   });
 
+  function ask(html, { okLabel = '확인', danger = false, expect = null } = {}) {
+    return new Promise(res => {
+      $('#askBox').innerHTML = `<p>${html}</p>${expect != null ? `<input id="askIn" placeholder="${esc(expect)}" autocomplete="off">` : ''}<p class="err" id="askErr" style="margin:0 0 8px"></p><div class="row"><button class="btn" id="askNo">취소</button><button class="btn ${danger ? 'red' : 'pri'}" id="askYes">${okLabel}</button></div>`;
+      $('#ask').classList.add('on');
+      const done = v => { $('#ask').classList.remove('on'); res(v); };
+      $('#askNo').onclick = () => done(false);
+      $('#askYes').onclick = () => {
+        if (expect != null && $('#askIn').value.trim() !== expect) { $('#askErr').textContent = `'${expect}'를 정확히 입력하세요.`; return; }
+        done(true);
+      };
+      if (expect != null) setTimeout(() => $('#askIn').focus(), 50);
+    });
+  }
   function start() {
     onValue(ref(db, 'classIndex'), s => {
       const list = Object.keys(s.val() || {}).sort();
@@ -215,7 +235,7 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
     const u = new URL('index.html', location.href); u.search = '?class=' + encodeURIComponent(c);
     $('#stuLink').textContent = u.href;
     unsub = onValue(ref(db, `classes/${c}`), s => { DATA = s.val() || {}; $('#unlockAll').checked = !!DATA.settings?.unlockAll; render(); },
-      e => alert('불러오기 실패: ' + e.message));
+      e => { $('#emptyNote').textContent = '불러오기 실패: ' + e.message; });
   }
   $('#clsSel').onchange = e => openCls(e.target.value);
   $('#clsGo').onclick = () => openCls($('#clsIn').value);
@@ -224,8 +244,7 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
   $('#unlockAll').onchange = e => { if (CLS) set(ref(db, `classes/${CLS}/settings/unlockAll`), e.target.checked); };
   $('#resetCls').onclick = async () => {
     if (!CLS) return;
-    const t = prompt(`'${CLS}' 반의 모든 학생 기록을 삭제합니다. 되돌릴 수 없어요.\n삭제하려면 반 코드(${CLS})를 그대로 입력하세요.`);
-    if (t !== CLS) return;
+    if (!await ask(`<b>'${esc(CLS)}' 반의 모든 학생 기록을 삭제합니다.</b><br>되돌릴 수 없어요. 삭제하려면 반 코드 <b>${esc(CLS)}</b>를 그대로 입력하세요.`, { okLabel: '삭제', danger: true, expect: CLS })) return;
     await remove(ref(db, `classes/${CLS}`)); await remove(ref(db, `classIndex/${CLS}`));
   };
 
@@ -302,7 +321,7 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
     d.classList.add('on');
     $('#dClose').onclick = () => d.classList.remove('on');
     $('#dReset').onclick = async () => {
-      if (!confirm(`${s.sid} ${s.name} 학생의 미션 기록과 이름 등록을 모두 지웁니다. (학번·이름을 잘못 입력한 경우에 사용)`)) return;
+      if (!await ask(`<b>${esc(s.sid)} ${esc(s.name)}</b> 학생의 미션 기록과 이름 등록을 모두 지웁니다.<br><span class="note">학번·이름을 잘못 입력한 경우에 사용하세요. 되돌릴 수 없어요.</span>`, { okLabel: '초기화', danger: true })) return;
       await update(ref(db, `classes/${CLS}`), { [`students/${sid}`]: null, [`progress/${sid}`]: null, [`items/${sid}`]: null });
       d.classList.remove('on');
     };
