@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "classIndex": {
+      ".read": "auth != null && auth.token.email == 'qwepoi007@gmail.com' && auth.token.email_verified == true",
+      "$c": {
+        ".write": "auth != null",
+        ".validate": "newData.val() === true"
+      }
+    },
+    "classes": {
+      "$c": {
+        ".read": "auth != null && auth.token.email == 'qwepoi007@gmail.com' && auth.token.email_verified == true",
+        ".write": "auth != null && auth.token.email == 'qwepoi007@gmail.com' && auth.token.email_verified == true",
+        ".validate": "$c.length <= 20",
+        "settings": {
+          ".read": "auth != null"
+        },
+        "students": {
+          "$sid": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".validate": "$sid.matches(/^[0-9]{4,6}$/)",
+            "name": { ".validate": "newData.isString() && newData.val().length <= 20" }
+          }
+        },
+        "progress": {
+          "$sid": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".validate": "$sid.matches(/^[0-9]{4,6}$/)"
+          }
+        },
+        "items": {
+          "$sid": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".validate": "$sid.matches(/^[0-9]{4,6}$/)"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>교사용 · 속담 한마디 미션 현황</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6f1e7; --paper2:#efe7d6; --card:#fffdf8; --ink:#25211c; --ink2:#5b5248; --muted:#8a8073; --line:#d9cfbd;
+  --seal:#c0392b; --pine:#2f6b52; --pine2:#d7eadf; --amber:#8a5a00; --amber2:#fbe8c6; --sky:#2f64a8; --sky2:#dce8f7;
+  --serif:'Noto Serif KR',serif; --sans:'Noto Sans KR',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+button,select,input{font-family:inherit}
+header{position:sticky;top:0;z-index:20;background:rgba(246,241,231,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 18px;flex-wrap:wrap}
+.seal{width:38px;height:38px;border-radius:9px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-weight:900;font-size:20px;transform:rotate(-4deg)}
+.top b{font-size:16px}
+.sp{flex:1}
+.btn{border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--paper2)}
+.btn.pri{background:var(--ink);color:#fff}
+.btn.red{border-color:var(--seal);color:var(--seal)}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+main{max-width:1400px;margin:0 auto;padding:18px 18px 80px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 2px 0 rgba(37,33,28,.05)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+select,input[type=text]{font-size:15px;padding:7px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.tile small{display:block;color:var(--ink2);font-size:13px;font-weight:700}
+.tile .v{font-size:34px;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums}
+.tile .v span{font-size:15px;color:var(--muted);font-weight:700}
+.wrap{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px;background:#fff;border-radius:14px;overflow:hidden}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:middle;white-space:nowrap}
+th{background:var(--paper2);font-size:12.5px;color:var(--ink2);position:sticky;top:0}
+th .sub{display:block;font-weight:500;color:var(--muted)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#fbf7ee}
+td.num{font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#cfc6b6;margin-right:4px}
+.dot.on{background:var(--pine)}
+.cell{display:inline-flex;flex-direction:column;min-width:94px;padding:4px 8px;border-radius:9px;border:1.5px solid transparent;line-height:1.35}
+.cell .s{font-size:11.5px;font-weight:800}
+.cell .m{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+.cell .x{font-size:11px;color:var(--ink2)}
+.cell.none{color:var(--muted)}
+.cell.pass{background:var(--pine2)} .cell.pass .s{color:var(--pine)}
+.cell.tried{background:var(--amber2)} .cell.tried .s{color:var(--amber)}
+.cell.live{border-color:var(--sky);box-shadow:0 0 0 2px var(--sky2)}
+.cell .live-b{font-size:11px;font-weight:800;color:var(--sky)}
+.acc{display:flex;align-items:center;gap:6px}
+.acc .b{width:70px;height:8px;background:var(--paper2);border-radius:4px;overflow:hidden}
+.acc .b i{display:block;height:100%;background:var(--ink2);border-radius:0 4px 4px 0}
+.seg{display:inline-flex;background:var(--paper2);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--ink2);cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff}
+.grid2{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+.items{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.it{display:grid;grid-template-columns:minmax(150px,280px) 1fr 120px;gap:10px;align-items:center;font-size:14px}
+.it .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.it .lb b{font-family:var(--serif);font-size:16px}
+.it .bar{height:14px;background:var(--paper2);border-radius:4px;overflow:hidden}
+.it .bar i{display:block;height:100%;background:var(--seal);border-radius:0 4px 4px 0}
+.it .vl{font-variant-numeric:tabular-nums;color:var(--ink2);font-size:13px}
+.note{font-size:13px;color:var(--ink2);line-height:1.6}
+.hide{display:none!important}
+.gate{max-width:520px;margin:60px auto;text-align:center}
+.gate h1{font-size:26px}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--card);box-shadow:-10px 0 40px rgba(0,0,0,.15);z-index:50;padding:20px;overflow:auto;transform:translateX(105%);transition:transform .25s}
+.drawer.on{transform:none}
+.drawer h2{margin:0}
+.drawer .ms{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
+.drawer .ms b{font-size:15px}
+.drawer .wl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.drawer .wl span{background:#fbe3df;color:#8f2a1f;border-radius:8px;padding:3px 8px;font-size:13px}
+.drawer .wl span.ok2{background:var(--paper2);color:var(--ink2)}
+.link{font-family:ui-monospace,monospace;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;word-break:break-all}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.err{color:var(--seal);font-weight:700}
+</style>
+</head>
+<body>
+<header><div class="top">
+  <div class="seal">諺</div><b>속담 한마디 · 교사용 미션 현황</b>
+  <div class="sp"></div>
+  <span id="who" class="note"></span>
+  <button class="btn sm hide" id="outBtn">로그아웃</button>
+</div></header>
+
+<main>
+  <div class="gate panel" id="gate">
+    <h1>교사 로그인</h1>
+    <p class="note" id="gateMsg">firebase-config.js에 등록한 교사 Google 계정으로 로그인하세요.</p>
+    <button class="btn pri" id="inBtn" disabled>Google 계정으로 로그인</button>
+    <p class="err" id="gateErr"></p>
+  </div>
+
+  <div id="app" class="hide">
+    <div class="panel">
+      <div class="row">
+        <b>반</b>
+        <select id="clsSel"><option value="">반 선택</option></select>
+        <input type="text" id="clsIn" placeholder="반 코드 직접 입력" size="12">
+        <button class="btn sm" id="clsGo">열기</button>
+        <div class="sp"></div>
+        <label class="toggle"><input type="checkbox" id="unlockAll"> 모든 미션 잠금 해제</label>
+        <button class="btn sm" id="csvBtn">CSV 내려받기</button>
+        <button class="btn sm red" id="resetCls">이 반 기록 삭제</button>
+      </div>
+      <div class="row" style="margin-top:10px"><span class="note">학생 접속 주소</span><span class="link" id="stuLink">반을 선택하세요</span><button class="btn sm" id="copyLink">복사</button></div>
+    </div>
+
+    <div class="tiles" id="tiles"></div>
+
+    <div class="panel">
+      <div class="row">
+        <b>학생별 현황</b><span class="note" id="liveNote"></span><div class="sp"></div>
+        <span class="note">정렬</span>
+        <div class="seg" id="sortSeg"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--pine2)"></i>통과 ✓</span>
+        <span><i style="background:var(--amber2)"></i>도전 중 (미통과)</span>
+        <span><i style="border:2px solid var(--sky)"></i>지금 진행 중 ▶</span>
+        <span>칸 숫자: 처음 기록 · 아래: 최고 기록, 도전 횟수</span>
+      </div>
+      <div class="wrap" style="margin-top:10px"><table id="tbl"></table></div>
+      <p class="note" id="emptyNote"></p>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <div class="row"><b>문항 분석 — 처음에 틀린 학생 비율이 높은 문항</b><div class="sp"></div><div class="seg" id="itemSeg"></div></div>
+        <p class="note">학생마다 그 문항을 <b>처음 풀었을 때</b> 틀렸는지를 기준으로 계산합니다. 막대 = 처음 틀린 학생 ÷ 그 문항을 푼 학생.</p>
+        <div class="items" id="items"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<aside class="drawer" id="drawer"></aside>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const MISSIONS = [
+  { id: 'm1', no: '①', title: '신습한자 뜻·음', kind: 'quiz' },
+  { id: 'm2', no: '②', title: '짝 맞추기', kind: 'match' },
+  { id: 'm3', no: '③', title: '속담 조립', kind: 'puzzle' },
+  { id: 'm4', no: '④', title: '이럴 땐 이 속담', kind: 'quiz' },
+  { id: 'm5', no: '⑤', title: '談虎虎至 탈출', kind: 'quiz' },
+];
+const MID = Object.fromEntries(MISSIONS.map(m => [m.id, m]));
+const rt = (m, r) => !r ? '' : m.kind === 'match' ? `시도 ${r.total}회` : m.kind === 'puzzle' ? `실수 ${r.extra?.miss ?? 0}회` : `${r.score}/${r.total}`;
+const pct = x => isFinite(x) ? Math.round(x * 100) + '%' : '–';
+const ago = t => { if (!t) return '–'; const s = (Date.now() - t) / 1000; if (s < 60) return '방금'; if (s < 3600) return Math.floor(s / 60) + '분 전'; if (s < 86400) return Math.floor(s / 3600) + '시간 전'; return new Date(t).toLocaleDateString('ko-KR'); };
+
+const cfg = window.FIREBASE_CONFIG;
+if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
+  $('#gateMsg').innerHTML = '아직 Firebase 설정이 없습니다. <b>firebase-config.js</b>에 설정값을 붙여 넣은 뒤 다시 여세요. (설정 방법은 README.md 참고)';
+} else {
+  const V = '10.12.2', B = `https://www.gstatic.com/firebasejs/${V}/`;
+  const [{ initializeApp }, A, D] = await Promise.all([import(B + 'firebase-app.js'), import(B + 'firebase-auth.js'), import(B + 'firebase-database.js')]);
+  const app = initializeApp(cfg);
+  const auth = A.getAuth(app);
+  const db = D.getDatabase(app);
+  const { ref, onValue, set, remove, update } = D;
+  let CLS = '', DATA = {}, SORT = 'sid', ITEMF = 'all', unsub = null;
+
+  $('#inBtn').disabled = false;
+  $('#inBtn').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(e => $('#gateErr').textContent = '로그인 실패: ' + (e.code || e.message));
+  $('#outBtn').onclick = () => A.signOut(auth);
+
+  A.onAuthStateChanged(auth, u => {
+    const ok = u && !u.isAnonymous && u.email && (!window.TEACHER_EMAIL || u.email.toLowerCase() === window.TEACHER_EMAIL.toLowerCase());
+    $('#who').textContent = u && !u.isAnonymous ? u.email : '';
+    $('#outBtn').classList.toggle('hide', !(u && !u.isAnonymous));
+    if (u && !u.isAnonymous && !ok) $('#gateErr').textContent = `이 계정(${u.email})은 교사 계정으로 등록되어 있지 않습니다.`;
+    $('#gate').classList.toggle('hide', !!ok);
+    $('#app').classList.toggle('hide', !ok);
+    if (ok) start();
+  });
+
+  function start() {
+    onValue(ref(db, 'classIndex'), s => {
+      const list = Object.keys(s.val() || {}).sort();
+      const sel = $('#clsSel'); const cur = sel.value || CLS;
+      sel.innerHTML = '<option value="">반 선택</option>' + list.map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join('');
+      if (!CLS) { const want = new URLSearchParams(location.search).get('class') || (list.length === 1 ? list[0] : ''); if (want) openCls(want); }
+    }, e => $('#gateErr').textContent = '읽기 권한 오류: ' + e.message);
+    seg($('#sortSeg'), [['sid', '학번순'], ['acc', '정답률 낮은순'], ['prog', '진행 적은순'], ['live', '접속 중 먼저']], v => { SORT = v; render(); }, SORT);
+    seg($('#itemSeg'), [['all', '전체'], ...MISSIONS.filter(m => m.kind !== 'match').map(m => [m.id, m.no + ' ' + m.title])], v => { ITEMF = v; renderItems(); }, ITEMF);
+    setInterval(render, 30000);
+  }
+  function seg(box, items, on, init) {
+    box.innerHTML = '';
+    items.forEach(([v, l]) => { const b = document.createElement('button'); b.textContent = l; if (v === init) b.className = 'on'; b.onclick = () => { [...box.children].forEach(c => c.className = ''); b.className = 'on'; on(v); }; box.append(b); });
+  }
+  function openCls(c) {
+    c = String(c).trim(); if (!c) return;
+    CLS = c; $('#clsSel').value = c;
+    if (unsub) unsub();
+    const u = new URL('index.html', location.href); u.search = '?class=' + encodeURIComponent(c);
+    $('#stuLink').textContent = u.href;
+    unsub = onValue(ref(db, `classes/${c}`), s => { DATA = s.val() || {}; $('#unlockAll').checked = !!DATA.settings?.unlockAll; render(); },
+      e => alert('불러오기 실패: ' + e.message));
+  }
+  $('#clsSel').onchange = e => openCls(e.target.value);
+  $('#clsGo').onclick = () => openCls($('#clsIn').value);
+  $('#clsIn').onkeyup = e => { if (e.key === 'Enter') openCls(e.target.value); };
+  $('#copyLink').onclick = () => navigator.clipboard?.writeText($('#stuLink').textContent).then(() => { $('#copyLink').textContent = '복사됨'; setTimeout(() => $('#copyLink').textContent = '복사', 1500); });
+  $('#unlockAll').onchange = e => { if (CLS) set(ref(db, `classes/${CLS}/settings/unlockAll`), e.target.checked); };
+  $('#resetCls').onclick = async () => {
+    if (!CLS) return;
+    const t = prompt(`'${CLS}' 반의 모든 학생 기록을 삭제합니다. 되돌릴 수 없어요.\n삭제하려면 반 코드(${CLS})를 그대로 입력하세요.`);
+    if (t !== CLS) return;
+    await remove(ref(db, `classes/${CLS}`)); await remove(ref(db, `classIndex/${CLS}`));
+  };
+
+  function students() {
+    const st = DATA.students || {}, pr = DATA.progress || {}, it = DATA.items || {};
+    return Object.keys(Object.assign({}, st, pr)).map(sid => {
+      const items = it[sid] || {};
+      let n = 0, ok = 0;
+      for (const mid in items) for (const k in items[mid]) { n++; if (items[mid][k].firstOk) ok++; }
+      const prog = pr[sid] || {};
+      const passN = MISSIONS.filter(m => prog[m.id]?.passed).length;
+      return { sid, name: st[sid]?.name || '?', online: !!st[sid]?.online, current: st[sid]?.current, lastSeen: st[sid]?.lastSeen, prog, items, n, ok, acc: n ? ok / n : NaN, passN };
+    });
+  }
+  function render() {
+    if (!CLS) return;
+    const S = students();
+    const sorters = {
+      sid: (a, b) => a.sid.localeCompare(b.sid),
+      acc: (a, b) => (isNaN(a.acc) ? 2 : a.acc) - (isNaN(b.acc) ? 2 : b.acc) || a.sid.localeCompare(b.sid),
+      prog: (a, b) => a.passN - b.passN || a.sid.localeCompare(b.sid),
+      live: (a, b) => (b.online - a.online) || a.sid.localeCompare(b.sid),
+    };
+    S.sort(sorters[SORT]);
+    const on = S.filter(s => s.online).length;
+    const all = S.filter(s => s.passN === MISSIONS.length).length;
+    const tn = S.reduce((a, s) => a + s.n, 0), tok = S.reduce((a, s) => a + s.ok, 0);
+    $('#tiles').innerHTML = [
+      ['등록 학생', S.length, '명'], ['지금 접속', on, '명'], ['미션 5개 모두 통과', all, `/ ${S.length}명`],
+      ['학급 처음 정답률', tn ? Math.round(tok / tn * 100) : '–', tn ? `% (${tok}/${tn}문항)` : ''],
+    ].map(([l, v, u]) => `<div class="tile"><small>${l}</small><div class="v">${v} <span>${u}</span></div></div>`).join('');
+    $('#liveNote').textContent = `· ${CLS} · 실시간 갱신`;
+    const head = `<thead><tr><th>학번</th><th>이름</th>${MISSIONS.map(m => `<th>${m.no} ${m.title}<span class="sub">통과 ${S.filter(s => s.prog[m.id]?.passed).length}/${S.length}</span></th>`).join('')}<th>처음 정답률<span class="sub">처음 맞힌 문항/푼 문항</span></th><th>마지막 활동</th></tr></thead>`;
+    const rows = S.map(s => `<tr data-sid="${esc(s.sid)}"><td class="num"><span class="dot ${s.online ? 'on' : ''}" title="${s.online ? '접속 중' : '접속 안 함'}"></span>${esc(s.sid)}</td><td>${esc(s.name)}</td>${MISSIONS.map(m => {
+      const p = s.prog[m.id]; const live = s.online && s.current === m.id;
+      if (!p) return `<td><div class="cell none ${live ? 'live' : ''}">${live ? '<span class="live-b">▶ 진행 중</span>' : '<span class="s">–</span>'}</div></td>`;
+      return `<td><div class="cell ${p.passed ? 'pass' : 'tried'} ${live ? 'live' : ''}"><span class="s">${p.passed ? '통과 ✓' : '도전 중'}${live ? ' <span class="live-b">▶</span>' : ''}</span><span class="m">${rt(m, p.first)}</span><span class="x">최고 ${rt(m, p.best)} · ${p.attempts}회</span></div></td>`;
+    }).join('')}<td><div class="acc"><span class="b"><i style="width:${isNaN(s.acc) ? 0 : s.acc * 100}%"></i></span><b class="num">${pct(s.acc)}</b><span class="note">${s.ok}/${s.n}</span></div></td><td class="note">${s.online ? '접속 중' : ago(s.lastSeen)}</td></tr>`).join('');
+    $('#tbl').innerHTML = head + '<tbody>' + rows + '</tbody>';
+    $('#emptyNote').textContent = S.length ? '' : '아직 입장한 학생이 없습니다. 위의 학생 접속 주소를 안내해 주세요.';
+    [...document.querySelectorAll('#tbl tbody tr')].forEach(tr => tr.onclick = () => openDrawer(tr.dataset.sid));
+    renderItems();
+    if ($('#drawer').classList.contains('on')) openDrawer($('#drawer').dataset.sid, true);
+  }
+  function renderItems() {
+    const it = DATA.items || {}; const agg = {};
+    for (const sid in it) for (const mid in it[sid]) {
+      if (ITEMF !== 'all' && mid !== ITEMF) continue;
+      for (const k in it[sid][mid]) {
+        const r = it[sid][mid][k]; const key = mid + '|' + k;
+        const a = agg[key] || (agg[key] = { mid, label: r.label || k, n: 0, fw: 0, wrong: 0, who: [] });
+        a.n++; a.wrong += r.wrong || 0; if (!r.firstOk) { a.fw++; a.who.push(sid); }
+      }
+    }
+    const list = Object.values(agg).filter(a => a.fw > 0).sort((a, b) => b.fw / b.n - a.fw / a.n || b.fw - a.fw).slice(0, 15);
+    const st = DATA.students || {};
+    $('#items').innerHTML = list.length ? list.map(a => `<div class="it" title="처음 틀린 학생: ${esc(a.who.map(s => s + ' ' + (st[s]?.name || '')).join(', '))}"><span class="lb">${esc(MID[a.mid]?.no || '')} <b>${esc(a.label)}</b></span><span class="bar"><i style="width:${a.fw / a.n * 100}%"></i></span><span class="vl">${pct(a.fw / a.n)} · ${a.fw}/${a.n}명</span></div>`).join('')
+      : '<p class="note">아직 틀린 문항 기록이 없습니다.</p>';
+  }
+  function openDrawer(sid, keep) {
+    const s = students().find(x => x.sid === sid); if (!s) { $('#drawer').classList.remove('on'); return; }
+    const d = $('#drawer'); d.dataset.sid = sid;
+    d.innerHTML = `<div class="row"><h2>${esc(s.sid)} ${esc(s.name)}</h2><div class="sp"></div><button class="btn sm" id="dClose">닫기</button></div>
+      <p class="note"><span class="dot ${s.online ? 'on' : ''}"></span>${s.online ? '접속 중' + (s.current ? ' · ' + (MID[s.current]?.no || '') + ' ' + (MID[s.current]?.title || '') + ' 진행 중' : '') : '마지막 활동 ' + ago(s.lastSeen)} · 처음 정답률 <b>${pct(s.acc)}</b> (${s.ok}/${s.n})</p>
+      ${MISSIONS.map(m => {
+        const p = s.prog[m.id]; const items = Object.values(s.items[m.id] || {});
+        const wrong = items.filter(r => !r.firstOk || r.wrong > 0).sort((a, b) => (b.wrong || 0) - (a.wrong || 0));
+        return `<div class="ms"><b>${m.no} ${m.title}</b> ${p ? (p.passed ? '<span class="note" style="color:var(--pine)">통과 ✓</span>' : '<span class="note" style="color:var(--amber)">도전 중</span>') : '<span class="note">시작 전</span>'}
+        ${p ? `<div class="note">처음 ${rt(m, p.first)} · 최고 ${rt(m, p.best)} · 최근 ${rt(m, p.last)} · 도전 ${p.attempts}회 · ${ago(p.updatedAt)}</div>` : ''}
+        ${wrong.length ? `<div class="wl">${wrong.map(r => `<span class="${r.firstOk ? 'ok2' : ''}" title="${r.firstOk ? '처음엔 맞혔으나 이후 틀림' : '처음에 틀림'}">${esc(r.label)}${r.wrong > 1 ? ' ×' + r.wrong : ''}</span>`).join('')}</div>` : (items.length ? '<div class="note">틀린 문항 없음 👍</div>' : '')}</div>`;
+      }).join('')}
+      <p class="note" style="margin-top:14px">빨간 표시: 처음에 틀린 문항 · 회색: 처음엔 맞혔지만 다시 풀 때 틀린 문항</p>
+      <button class="btn sm red" id="dReset" style="margin-top:6px">이 학생 기록 초기화</button>`;
+    d.classList.add('on');
+    $('#dClose').onclick = () => d.classList.remove('on');
+    $('#dReset').onclick = async () => {
+      if (!confirm(`${s.sid} ${s.name} 학생의 미션 기록과 이름 등록을 모두 지웁니다. (학번·이름을 잘못 입력한 경우에 사용)`)) return;
+      await update(ref(db, `classes/${CLS}`), { [`students/${sid}`]: null, [`progress/${sid}`]: null, [`items/${sid}`]: null });
+      d.classList.remove('on');
+    };
+  }
+  $('#csvBtn').onclick = () => {
+    if (!CLS) return;
+    const S = students().sort((a, b) => a.sid.localeCompare(b.sid));
+    const head = ['반', '학번', '이름', ...MISSIONS.flatMap(m => [`${m.no}${m.title} 통과`, `${m.no} 처음`, `${m.no} 최고`, `${m.no} 도전횟수`]), '처음 맞힌 문항', '푼 문항', '처음 정답률(%)', '처음 틀린 문항'];
+    const rows = S.map(s => [CLS, s.sid, s.name, ...MISSIONS.flatMap(m => { const p = s.prog[m.id]; return p ? [p.passed ? 'O' : 'X', rt(m, p.first), rt(m, p.best), p.attempts] : ['', '', '', '']; }),
+      s.ok, s.n, isNaN(s.acc) ? '' : Math.round(s.acc * 100),
+      Object.values(s.items).flatMap(o => Object.values(o)).filter(r => !r.firstOk).map(r => r.label).join(' / ')]);
+    const csv = '﻿' + [head, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `속담한마디_${CLS}_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+  };
+}
+</script>
+</body>
+</html>
