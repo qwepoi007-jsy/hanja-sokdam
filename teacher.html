@@ -176,7 +176,10 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
   let CLS = '', DATA = {}, SORT = 'sid', ITEMF = 'all', unsub = null;
 
   $('#inBtn').disabled = false;
-  $('#inBtn').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(e => $('#gateErr').textContent = '로그인 실패: ' + (e.code || e.message));
+  $('#inBtn').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(e => $('#gateErr').textContent = e.code === 'auth/popup-blocked'
+    ? '로그인 창(팝업)이 차단되었어요. 주소창 오른쪽의 팝업 차단 아이콘에서 이 사이트의 팝업을 허용한 뒤 다시 눌러 주세요.'
+    : e.code === 'auth/popup-closed-by-user' ? '로그인 창이 닫혔어요. 다시 눌러 주세요.'
+    : '로그인 실패: ' + (e.code || e.message));
   $('#outBtn').onclick = () => A.signOut(auth);
 
   A.onAuthStateChanged(auth, u => {

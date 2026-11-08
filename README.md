@@ -21,7 +21,7 @@
    - 위치: **싱가포르(asia-southeast1)** 권장
    - 보안 규칙: **잠금 모드**로 시작
    - 만든 뒤 화면 위쪽의 주소(`https://….firebasedatabase.app`)가 `firebase-config.js`의 `databaseURL`과 같은지 확인하세요. 비어 있으면 직접 넣습니다.
-4. **보안 규칙 붙여 넣기** — Realtime Database → *규칙* 탭 → `database.rules.json` 내용 전체를 붙여 넣고 `teacher@example.com`(3곳)을 모두 **선생님 Google 계정 주소**로 바꾼 뒤 *게시*.
+4. **보안 규칙 붙여 넣기** — Realtime Database → *규칙* 탭 → `database.rules.json` 내용 전체를 붙여 넣고 교사 계정(qwepoi007@gmail.com)이 들어간 규칙을 *게시* (완료됨).
 5. **로그인 방식 켜기** — *빌드 → Authentication → 시작하기 → 로그인 방법*
    - **익명**: 사용 설정 (학생용 — 학생은 계정이 필요 없습니다)
    - **Google**: 사용 설정 (교사용)
