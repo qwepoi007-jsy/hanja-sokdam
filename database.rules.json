@@ -1,5 +1,12 @@
 {
   "rules": {
+    "classList": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.email == 'qwepoi007@gmail.com' || auth.token.email == 'bortaguni@gmail.com' || auth.token.email == 'bortaguni@naver.com') && auth.token.email_verified == true",
+      "$c": {
+        ".validate": "$c.length <= 12 && newData.isNumber()"
+      }
+    },
     "classIndex": {
       ".read": "auth != null && (auth.token.email == 'qwepoi007@gmail.com' || auth.token.email == 'bortaguni@gmail.com' || auth.token.email == 'bortaguni@naver.com') && auth.token.email_verified == true",
       "$c": {
@@ -20,7 +27,9 @@
             ".read": "auth != null",
             ".write": "auth != null",
             ".validate": "$sid.matches(/^[0-9]{4,6}$/)",
-            "name": { ".validate": "newData.isString() && newData.val().length <= 20" }
+            "name": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            }
           }
         },
         "progress": {

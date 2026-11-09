@@ -192,7 +192,8 @@ table.bank td.hzc{font-family:var(--serif);font-weight:900;font-size:26px;text-a
 .modal h2{margin:0 0 4px}
 .modal label{display:block;font-weight:800;font-size:14px;margin:14px 0 6px}
 .modal input{width:100%;font-size:20px;padding:11px 14px;border-radius:12px;border:2px solid var(--line);font-family:inherit}
-.modal input:focus{outline:none;border-color:var(--ink)}
+.modal input:focus,.modal select:focus{outline:none;border-color:var(--ink)}
+.modal select{width:100%;font-size:20px;padding:11px 14px;border-radius:12px;border:2px solid var(--line);font-family:inherit;background:#fff}
 .modal .err{color:var(--seal);font-weight:700;font-size:14px;min-height:20px;margin-top:10px;line-height:1.5}
 .modal .btn{width:100%;margin-top:12px;padding:13px;font-size:17px}
 .mbanner{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:14px;padding:10px 16px;margin-bottom:16px;font-weight:700}
@@ -449,10 +450,10 @@ window.FBP = new Promise(res => {
   <div class="center"><div class="seal" style="margin:0 auto 10px;width:56px;height:56px;font-size:30px">諺</div></div>
   <h2 class="center">속담 한마디 한자 놀이터</h2>
   <p class="lead center" style="margin:0">반 코드, 학번, 이름을 입력하고 입장하세요.</p>
-  <label for="lgCls">반 코드</label><input id="lgCls" placeholder="예: 2-3" autocomplete="off">
+  <label for="lgClsSel">반</label><select id="lgClsSel" style="display:none"></select><input id="lgCls" placeholder="예: 2-3" autocomplete="off">
   <label for="lgSid">학번</label><input id="lgSid" inputmode="numeric" placeholder="예: 20315" autocomplete="off">
   <label for="lgName">이름</label><input id="lgName" placeholder="이름" autocomplete="off">
-  <div class="err" id="lgErr"></div>
+  <div class="err" id="lgErr"></div><p class="note center" style="margin:6px 0 0">Enter 또는 Space를 누르면 다음 칸으로 넘어가요.</p>
   <button class="btn pri" id="lgGo">입장하기</button>
 </div></div>
 <div class="overlay" id="result"><div class="modal" id="resultBox"></div></div>
@@ -1422,7 +1423,59 @@ $('#lgGo').onclick = async () => {
   catch (e) { err.textContent = e.message || '입장하지 못했어요. 다시 시도해 주세요.'; console.error(e); }
   finally { $('#lgGo').disabled = false; $('#lgGo').textContent = '입장하기'; }
 };
-['#lgCls', '#lgSid', '#lgName'].forEach(s => $(s).addEventListener('keyup', e => { if (e.key === 'Enter') $('#lgGo').click(); }));
+/* 반 코드 드롭다운: 교사가 등록한 반 목록(classList)을 불러와 채움 */
+function fillClassSelect(list) {
+  const sel = $('#lgClsSel'), inp = $('#lgCls');
+  const cur = inp.value.trim();
+  const codes = list.slice();
+  if (cur && !codes.includes(cur)) codes.push(cur);
+  if (!codes.length) { sel.style.display = 'none'; inp.style.display = ''; return; }
+  sel.innerHTML = '<option value="">반을 선택하세요</option>' + codes.map(c => `<option value="${c.replace(/"/g, '&quot;')}">${c}</option>`).join('');
+  sel.value = cur;
+  sel.style.display = ''; inp.style.display = 'none';
+}
+$('#lgClsSel').onchange = () => { $('#lgCls').value = $('#lgClsSel').value; if ($('#lgClsSel').value) $('#lgSid').focus(); };
+window.FBP.then(async fb => {
+  let list = [];
+  if (fb && fb.db) {
+    try {
+      const { ref, get } = fb.D;
+      const v = (await get(ref(fb.db, 'classList'))).val() || {};
+      list = Object.keys(v).sort((a, b) => (v[a] - v[b]) || a.localeCompare(b, 'ko', { numeric: true }));
+    } catch (e) { console.warn('반 목록을 불러오지 못했어요', e); }
+  }
+  fillClassSelect(list);
+});
+/* 엔터·스페이스로 다음 칸 / 입장 (한글 입력 중이면 글자 확정 뒤 이동) */
+function lgNext(from) {
+  if (from === 'cls') { if ($('#lgCls').value.trim()) $('#lgSid').focus(); }
+  else if (from === 'sid') $('#lgName').focus();
+  else $('#lgGo').click();
+}
+[['#lgClsSel', 'cls'], ['#lgCls', 'cls'], ['#lgSid', 'sid'], ['#lgName', 'name']].forEach(([s, step]) => {
+  const elx = $(s); let pending = false;
+  elx.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.code !== 'Space') return;
+    if (s === '#lgClsSel' && e.key === ' ' && !elx.value) return;   // 아직 고르지 않았으면 스페이스로 목록 열기
+    if (e.isComposing || e.keyCode === 229) { pending = true; return; }
+    e.preventDefault(); lgNext(step);
+  });
+  elx.addEventListener('compositionend', () => { if (pending) { pending = false; setTimeout(() => { elx.value = elx.value.replace(/\s+$/, ''); lgNext(step); }, 0); } });
+  elx.addEventListener('input', () => { if (step !== 'cls' && /\s$/.test(elx.value) && !pending) { elx.value = elx.value.replace(/\s+/g, ''); lgNext(step); } });
+});
+/* 활동 중 엔터·스페이스 = '다음' 버튼 */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const a = document.activeElement;
+  if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable)) return;
+  if (a && a.tagName === 'BUTTON' && !a.disabled && a.offsetParent) return;   // 버튼에 초점이 있으면 기본 동작 사용
+  if ($('#login').classList.contains('on')) return;
+  const vis = s => { const b = $(s); return b && b.offsetParent && !b.disabled ? b : null; };
+  const target = $('#ask').classList.contains('on') ? vis('#askYes')
+    : $('#result').classList.contains('on') ? (vis('#rNext') || vis('#rHome'))
+    : (vis('#qNext') || vis('#sNext') || vis('#cNext'));
+  if (target) { e.preventDefault(); target.click(); }
+});
 function askConfirm(html, okLabel) {
   return new Promise(res => {
     const box = $('#askBox');
@@ -1438,6 +1491,7 @@ $('#logoutBtn').onclick = async () => { if (await askConfirm('<b>로그아웃할
   const saved = lsGet('hanja-sokdam:me');
   if (cls0) $('#lgCls').value = cls0;
   if (saved && saved.sid) { $('#lgCls').value = saved.cls; $('#lgSid').value = saved.sid; $('#lgName').value = saved.name; }
+  if ($('#lgClsSel').options.length) $('#lgClsSel').value = $('#lgCls').value;
   $('#login').classList.add('on');
   if (saved && saved.sid && (!cls0 || cls0 === saved.cls)) $('#lgGo').click();
 }

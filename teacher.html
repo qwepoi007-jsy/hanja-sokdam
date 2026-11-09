@@ -84,6 +84,10 @@ td.num{font-variant-numeric:tabular-nums}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
 .err{color:var(--seal);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--paper2);border-radius:999px;padding:4px 6px 4px 12px;font-size:14px;font-weight:700}
+.chip button{border:0;background:transparent;cursor:pointer;font-size:15px;color:var(--ink2);padding:0 4px;border-radius:50%}
+.chip button:hover{background:#fff;color:var(--seal)}
 .ovl{position:fixed;inset:0;z-index:100;background:rgba(37,33,28,.5);display:none;align-items:center;justify-content:center;padding:18px}
 .ovl.on{display:flex}
 .mdl{background:var(--card);border-radius:18px;padding:22px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
@@ -119,6 +123,18 @@ td.num{font-variant-numeric:tabular-nums}
         <label class="toggle"><input type="checkbox" id="unlockAll"> 모든 미션 잠금 해제</label>
         <button class="btn sm" id="csvBtn">CSV 내려받기</button>
         <button class="btn sm red" id="resetCls">이 반 기록 삭제</button>
+      </div>
+      <div class="row" style="margin-top:12px;align-items:flex-start">
+        <b style="padding-top:5px">학생 반 목록</b>
+        <div style="flex:1;min-width:260px">
+          <div class="chips" id="clsChips"></div>
+          <div class="row" style="margin-top:6px">
+            <input type="text" id="clsAdd" placeholder="예: 2-1, 2-2, 2-3" size="22">
+            <button class="btn sm" id="clsAddBtn">추가</button>
+            <button class="btn sm" id="clsFromIdx">기록된 반 모두 추가</button>
+          </div>
+          <p class="note" style="margin:4px 0 0">학생 입장 화면의 반 드롭다운에 이 목록이 나옵니다. 쉼표나 띄어쓰기로 여러 반을 한 번에 추가할 수 있어요.</p>
+        </div>
       </div>
       <div class="row" style="margin-top:10px"><span class="note">학생 접속 주소</span><span class="link" id="stuLink">반을 선택하세요</span><button class="btn sm" id="copyLink">복사</button></div>
     </div>
@@ -200,12 +216,12 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
     if (ok) start();
   });
 
-  function ask(html, { okLabel = '확인', danger = false, expect = null } = {}) {
+  function ask(html, { okLabel = '확인', danger = false, expect = null, noCancel = false } = {}) {
     return new Promise(res => {
-      $('#askBox').innerHTML = `<p>${html}</p>${expect != null ? `<input id="askIn" placeholder="${esc(expect)}" autocomplete="off">` : ''}<p class="err" id="askErr" style="margin:0 0 8px"></p><div class="row"><button class="btn" id="askNo">취소</button><button class="btn ${danger ? 'red' : 'pri'}" id="askYes">${okLabel}</button></div>`;
+      $('#askBox').innerHTML = `<p>${html}</p>${expect != null ? `<input id="askIn" placeholder="${esc(expect)}" autocomplete="off">` : ''}<p class="err" id="askErr" style="margin:0 0 8px"></p><div class="row">${noCancel ? '' : '<button class="btn" id="askNo">취소</button>'}<button class="btn ${danger ? 'red' : 'pri'}" id="askYes">${okLabel}</button></div>`;
       $('#ask').classList.add('on');
       const done = v => { $('#ask').classList.remove('on'); res(v); };
-      $('#askNo').onclick = () => done(false);
+      if ($('#askNo')) $('#askNo').onclick = () => done(false);
       $('#askYes').onclick = () => {
         if (expect != null && $('#askIn').value.trim() !== expect) { $('#askErr').textContent = `'${expect}'를 정확히 입력하세요.`; return; }
         done(true);
@@ -213,9 +229,29 @@ if (!cfg || !cfg.apiKey || !cfg.databaseURL) {
       if (expect != null) setTimeout(() => $('#askIn').focus(), 50);
     });
   }
+  let CLIST = {}, CIDX = [];
+  const CRE = /^[0-9A-Za-z가-힣-]{1,12}$/;
+  function renderChips() {
+    const codes = Object.keys(CLIST).sort((a, b) => (CLIST[a] - CLIST[b]) || a.localeCompare(b, 'ko', { numeric: true }));
+    $('#clsChips').innerHTML = codes.length ? codes.map(c => `<span class="chip">${esc(c)}<button title="목록에서 빼기" data-c="${esc(c)}">×</button></span>`).join('')
+      : '<span class="note">아직 등록된 반이 없어요. 반을 추가하면 학생 화면이 드롭다운으로 바뀝니다.</span>';
+    [...$('#clsChips').querySelectorAll('button')].forEach(b => b.onclick = () => set(ref(db, 'classList/' + b.dataset.c), null));
+  }
+  function addClasses(arr) {
+    const upd = {}; let n = Object.keys(CLIST).length; const bad = [];
+    arr.map(s => s.trim()).filter(Boolean).forEach(c => { if (!CRE.test(c)) bad.push(c); else if (!(c in CLIST)) upd[c] = ++n; });
+    if (Object.keys(upd).length) update(ref(db, 'classList'), upd).catch(e => alertBox('반 목록 저장 실패: ' + e.message));
+    if (bad.length) alertBox(`추가하지 못한 반 코드: ${bad.map(esc).join(', ')}<br><span class="note">한글·숫자·영문·하이픈(-)으로 12자까지 쓸 수 있어요.</span>`);
+  }
+  function alertBox(html) { ask(html, { okLabel: '확인', noCancel: true }); }
+  $('#clsAddBtn').onclick = () => { addClasses($('#clsAdd').value.split(/[,\s]+/)); $('#clsAdd').value = ''; };
+  $('#clsAdd').onkeyup = e => { if (e.key === 'Enter') $('#clsAddBtn').click(); };
+  $('#clsFromIdx').onclick = () => addClasses(CIDX);
   function start() {
+    onValue(ref(db, 'classList'), s => { CLIST = s.val() || {}; renderChips(); });
     onValue(ref(db, 'classIndex'), s => {
       const list = Object.keys(s.val() || {}).sort();
+      CIDX = list;
       const sel = $('#clsSel'); const cur = sel.value || CLS;
       sel.innerHTML = '<option value="">반 선택</option>' + list.map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join('');
       if (!CLS) { const want = new URLSearchParams(location.search).get('class') || (list.length === 1 ? list[0] : ''); if (want) openCls(want); }
